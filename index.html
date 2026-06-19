@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Brand Discovery Questionnaire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ivory:#F7F4EE;
+    --ink:#1F1D1B;
+    --brass:#A9802F;
+    --brass-soft:#C9A463;
+    --stone:#DDD6C8;
+    --stone-light:#EAE5D9;
+    --deep:#25342B;
+    --muted:#6B6458;
+    --error:#A23B2E;
+    --radius:2px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ivory);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+  }
+  ::selection{background:var(--brass-soft); color:var(--ivory);}
+
+  .shell{
+    display:grid;
+    grid-template-columns:88px 1fr;
+    min-height:100vh;
+  }
+  @media (max-width:760px){
+    .shell{grid-template-columns:1fr;}
+  }
+
+  .rail{
+    position:sticky; top:0; height:100vh;
+    border-right:1px solid var(--stone);
+    display:flex; flex-direction:column;
+    align-items:center;
+    padding:32px 0;
+  }
+  @media (max-width:760px){
+    .rail{display:none;}
+  }
+  .rail-mark{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.12em;
+    color:var(--muted);
+    writing-mode:vertical-rl;
+    text-orientation:mixed;
+    margin-bottom:28px;
+  }
+  .rail-steps{
+    flex:1;
+    display:flex; flex-direction:column;
+    justify-content:center;
+  }
+  .rail-step{
+    position:relative;
+    width:1px;
+    height:46px;
+    background:var(--stone);
+    margin:0 auto;
+  }
+  .rail-step::before{
+    content:attr(data-num);
+    position:absolute;
+    left:50%; top:50%;
+    transform:translate(-50%,-50%);
+    width:22px; height:22px;
+    border-radius:50%;
+    background:var(--ivory);
+    border:1px solid var(--stone);
+    color:var(--muted);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9px;
+    display:flex; align-items:center; justify-content:center;
+    transition:all .35s ease;
+  }
+  .rail-step.done{background:var(--deep);}
+  .rail-step.done::before{
+    background:var(--deep);
+    border-color:var(--deep);
+    color:var(--ivory);
+  }
+  .rail-step.active::before{
+    background:var(--brass);
+    border-color:var(--brass);
+    color:var(--ivory);
+    width:26px; height:26px;
+  }
+
+  .mobile-progress{
+    display:none;
+    position:sticky; top:0; z-index:5;
+    background:var(--ivory);
+    border-bottom:1px solid var(--stone);
+    padding:14px 24px;
+  }
+  @media (max-width:760px){
+    .mobile-progress{display:block;}
+  }
+  .mobile-progress-track{
+    height:2px; background:var(--stone); position:relative; margin-top:8px;
+  }
+  .mobile-progress-fill{
+    position:absolute; left:0; top:0; height:100%;
+    background:var(--brass);
+    transition:width .4s ease;
+  }
+  .mobile-progress-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px; letter-spacing:.1em; color:var(--muted);
+  }
+
+  main{
+    max-width:640px;
+    margin:0 auto;
+    padding:72px 28px 140px;
+  }
+  @media (max-width:760px){
+    main{padding:40px 22px 140px;}
+  }
+
+  .masthead{
+    margin-bottom:64px;
+  }
+  .masthead-eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--brass);
+    margin-bottom:18px;
+  }
+  .masthead h1{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:clamp(32px,5vw,46px);
+    line-height:1.08;
+    margin:0 0 20px;
+    letter-spacing:-0.01em;
+  }
+  .masthead p{
+    color:var(--muted);
+    font-size:15.5px;
+    max-width:46ch;
+    margin:0;
+  }
+
+  .section{
+    display:none;
+  }
+  .section.active{
+    display:block;
+    animation:rise .45s ease both;
+  }
+  @keyframes rise{
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    border-bottom:1px solid var(--ink);
+    padding-bottom:18px;
+    margin-bottom:36px;
+  }
+  .section-num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    color:var(--brass);
+    letter-spacing:.04em;
+  }
+  .section-head h2{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:25px;
+    margin:0;
+  }
+
+  .field{
+    margin-bottom:34px;
+  }
+  .field label.q{
+    display:block;
+    font-size:15px;
+    font-weight:500;
+    margin-bottom:4px;
+  }
+  .field .hint{
+    font-size:12.5px;
+    color:var(--muted);
+    margin-bottom:10px;
+  }
+  .field .req{
+    color:var(--brass);
+    margin-left:3px;
+  }
+  input[type="text"],
+  input[type="url"],
+  textarea{
+    width:100%;
+    border:none;
+    border-bottom:1px solid var(--stone);
+    background:transparent;
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    color:var(--ink);
+    padding:9px 2px;
+    transition:border-color .2s ease;
+  }
+  textarea{
+    resize:vertical;
+    min-height:58px;
+    line-height:1.5;
+  }
+  input::placeholder, textarea::placeholder{
+    color:#B8B0A0;
+  }
+  input:focus, textarea:focus{
+    outline:none;
+    border-bottom:1px solid var(--brass);
+  }
+
+  .options{
+    display:flex; flex-wrap:wrap;
+    gap:9px;
+    margin-top:6px;
+  }
+  .opt{
+    position:relative;
+  }
+  .opt input{
+    position:absolute;
+    opacity:0;
+    width:100%; height:100%;
+    cursor:pointer;
+    margin:0;
+  }
+  .opt span{
+    display:inline-block;
+    padding:9px 16px;
+    border:1px solid var(--stone);
+    border-radius:20px;
+    font-size:13.5px;
+    color:var(--ink);
+    background:var(--ivory);
+    transition:all .18s ease;
+    cursor:pointer;
+  }
+  .opt input:checked + span{
+    background:var(--deep);
+    border-color:var(--deep);
+    color:var(--ivory);
+  }
+  .opt input:focus-visible + span{
+    outline:2px solid var(--brass);
+    outline-offset:2px;
+  }
+
+  .other-text{
+    margin-top:10px;
+    max-width:320px;
+  }
+
+  .nav{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--stone);
+  }
+  .btn{
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    font-weight:500;
+    letter-spacing:.02em;
+    border:1px solid var(--ink);
+    background:transparent;
+    color:var(--ink);
+    padding:13px 26px;
+    border-radius:1px;
+    cursor:pointer;
+    transition:all .18s ease;
+  }
+  .btn:hover{
+    background:var(--ink);
+    color:var(--ivory);
+  }
+  .btn.primary{
+    background:var(--deep);
+    border-color:var(--deep);
+    color:var(--ivory);
+  }
+  .btn.primary:hover{
+    background:var(--ink);
+    border-color:var(--ink);
+  }
+  .btn.ghost{
+    border-color:transparent;
+    color:var(--muted);
+    padding-left:0;
+  }
+  .btn.ghost:hover{
+    background:transparent;
+    color:var(--ink);
+  }
+
+  .nav-meta{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:.06em;
+  }
+
+  .endscreen{
+    display:none;
+    text-align:left;
+  }
+  .endscreen.active{display:block; animation:rise .5s ease both;}
+  .endscreen h2{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:34px;
+    margin:0 0 18px;
+  }
+  .endscreen p{
+    color:var(--muted);
+    font-size:15.5px;
+    max-width:46ch;
+  }
+  .status-line{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--muted);
+    margin-top:18px;
+  }
+  .status-line.error{color:var(--error);}
+
+  .submit-spinner{
+    display:inline-block;
+    width:13px; height:13px;
+    border:1.5px solid var(--muted);
+    border-top-color:transparent;
+    border-radius:50%;
+    animation:spin .7s linear infinite;
+    margin-right:8px;
+    vertical-align:-2px;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<div class="mobile-progress">
+  <span class="mobile-progress-label" id="mobileLabel">PART 01 / 08</span>
+  <div class="mobile-progress-track"><div class="mobile-progress-fill" id="mobileFill" style="width:12.5%"></div></div>
+</div>
+
+<div class="shell">
+  <nav class="rail" aria-hidden="true">
+    <div class="rail-mark">DISCOVERY DOSSIER</div>
+    <div class="rail-steps" id="railSteps"></div>
+  </nav>
+
+  <main>
+    <div class="masthead" id="masthead">
+      <div class="masthead-eyebrow">Personal Brand Discovery</div>
+      <h1>Let's build a brand that's actually yours.</h1>
+      <p>Thank you for taking the time to complete this questionnaire. Your answers shape a social media and personal branding strategy that's authentic, sustainable, and aligned with where you want your career to go. There are eight short parts, take your time.</p>
+    </div>
+
+    <form id="brandForm">
+
+      <section class="section" data-section="1">
+        <div class="section-head"><span class="section-num">I.</span><h2>About You</h2></div>
+
+        <div class="field">
+          <label class="q">Full name<span class="req">*</span></label>
+          <input type="text" name="Full Name" required placeholder="Your full name">
+        </div>
+        <div class="field">
+          <label class="q">Job title</label>
+          <input type="text" name="Job Title" placeholder="e.g. Senior Property Consultant">
+        </div>
+        <div class="field">
+          <label class="q">Company</label>
+          <input type="text" name="Company" placeholder="e.g. Morgan's International Realty">
+        </div>
+        <div class="field">
+          <label class="q">How long have you been working in real estate?</label>
+          <input type="text" name="Years in Real Estate" placeholder="e.g. 4 years">
+        </div>
+        <div class="field">
+          <label class="q">What areas and communities do you primarily specialize in?</label>
+          <textarea name="Specialist Areas" placeholder="e.g. Palm Jumeirah, Downtown Dubai, Dubai Hills"></textarea>
+        </div>
+        <div class="field">
+          <label class="q">What property types do you focus on?</label>
+          <div class="hint">Select all that apply</div>
+          <div class="options" data-group="Property Types">
+            <label class="opt"><input type="checkbox" name="Property Types" value="Apartments"><span>Apartments</span></label>
+            <label class="opt"><input type="checkbox" name="Property Types" value="Villas"><span>Villas</span></label>
+            <label class="opt"><input type="checkbox" name="Property Types" value="Off-Plan"><span>Off-Plan</span></label>
+            <label class="opt"><input type="checkbox" name="Property Types" value="Luxury"><span>Luxury</span></label>
+            <label class="opt"><input type="checkbox" name="Property Types" value="Commercial"><span>Commercial</span></label>
+            <label class="opt"><input type="checkbox" name="Property Types" value="Other" data-other-toggle="propTypesOther"><span>Other</span></label>
+          </div>
+          <input type="text" class="other-text" id="propTypesOther" name="Property Types (Other)" placeholder="Please specify" style="display:none;">
+        </div>
+        <div class="field">
+          <label class="q">What do you enjoy most about working in real estate?</label>
+          <textarea name="What You Enjoy Most"></textarea>
+        </div>
+        <div class="field">
+          <label class="q">What do you believe makes you different from other agents?</label>
+          <textarea name="What Makes You Different"></textarea>
+        </div>
+      </section>
+
+      <section class="section" data-section="2">
+        <div class="section-head"><span class="section-num">II.</span><h2>Your Goals</h2></div>
+
+        <div class="field">
+          <label class="q">Why do you want to build your social media presence?</label>
+          <textarea name="Why Build Social Presence"></textarea>
+        </div>
+        <div class="field">
+          <label class="q">What would success look like to you after 12 months?</label>
+          <textarea name="Success After 12 Months"></textarea>
+        </div>
+        <div class="field">
+          <label class="q">What are your top three goals?</label>
+          <div class="hint">Select up to three</div>
+          <div class="options" data-group="Top Goals">
+            <label class="opt"><input type="checkbox" name="Top Goals" value="Generate more leads"><span>Generate more leads</span></label>
+            <label class="opt"><input type="checkbox" name="Top Goals" value="Build credibility"><span>Build credibility</span></label>
+            <label class="opt"><input type="checkbox" name="Top Goals" value="Increase visibility"><span>Increase visibility</span></label>
+            <label class="opt"><input type="checkbox" name="Top Goals" value="Become a market expert"><span>Become a market expert</span></label>
+            <label class="opt"><input type="checkbox" name="Top Goals" value="Build a luxury brand"><span>Build a luxury brand</span></label>
+            <label class="opt"><input type="checkbox" name="Top Goals" value="Attract investors"><span>Attract investors</span></label>
+            <label class="opt"><input type="checkbox" name="Top Goals" value="Expand professional network"><span>Expand professional network</span></label>
+            <label class="opt"><input type="checkbox" name="Top Goals" value="Other" data-other-toggle="goalsOther"><span>Other</span></label>
+          </div>
+          <input type="text" class="other-text" id="goalsOther" name="Top Goals (Other)" placeholder="Please specify" style="display:none;">
+        </div>
+        <div class="field">
+          <label class="q">Are there any real estate professionals, influencers, or public figures whose personal brand you admire?</label>
+          <textarea name="Admired Personal Brands"></textarea>
+        </div>
+      </section>
+
+      <section class="section" data-section="3">
+        <div class="section-head"><span class="section-num">III.</span><h2>Your Ideal Client</h2></div>
+
+        <div class="field">
+          <label class="q">Who is your ideal client?</label>
+          <textarea name="Ideal Client"></textarea>
+        </div>
+        <div class="field">
+          <label class="q">What is the typical budget range of your ideal client?</label>
+          <input type="text" name="Typical Budget Range" placeholder="e.g. AED 3M to 8M">
+        </div>
+        <div class="field">
+          <label class="q">Do you mainly work with:</label>
+          <div class="hint">Select all that apply</div>
+          <div class="options" data-group="Client Type">
+            <label class="opt"><input type="checkbox" name="Client Type" value="Investors"><span>Investors</span></label>
+            <label class="opt"><input type="checkbox" name="Client Type" value="End Users"><span>End Users</span></label>
+            <label class="opt"><input type="checkbox" name="Client Type" value="Sellers"><span>Sellers</span></label>
+            <label class="opt"><input type="checkbox" name="Client Type" value="Landlords"><span>Landlords</span></label>
+            <label class="opt"><input type="checkbox" name="Client Type" value="Tenants"><span>Tenants</span></label>
+            <label class="opt"><input type="checkbox" name="Client Type" value="Developers"><span>Developers</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="q">Which countries or nationalities do you most frequently work with?</label>
+          <input type="text" name="Client Nationalities" placeholder="e.g. UK, India, Russia, GCC">
+        </div>
+        <div class="field">
+          <label class="q">What are the most common questions your clients ask you?</label>
+          <textarea name="Common Client Questions"></textarea>
+        </div>
+      </section>
+
+      <section class="section" data-section="4">
+        <div class="section-head"><span class="section-num">IV.</span><h2>Personal Branding &amp; Personality</h2></div>
+
+        <div class="field">
+          <label class="q">How would you describe yourself in three words?</label>
+          <input type="text" name="Self Description (3 words)" placeholder="e.g. Direct, warm, detail-driven">
+        </div>
+        <div class="field">
+          <label class="q">How would your clients describe you?</label>
+          <input type="text" name="Client Description of You">
+        </div>
+        <div class="field">
+          <label class="q">Are you comfortable speaking on camera?</label>
+          <div class="options" data-group="Camera Comfort">
+            <label class="opt"><input type="radio" name="Camera Comfort" value="Very Comfortable"><span>Very Comfortable</span></label>
+            <label class="opt"><input type="radio" name="Camera Comfort" value="Somewhat Comfortable"><span>Somewhat Comfortable</span></label>
+            <label class="opt"><input type="radio" name="Camera Comfort" value="Not Comfortable"><span>Not Comfortable</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="q">Which content format do you prefer?</label>
+          <div class="hint">Select all that apply</div>
+          <div class="options" data-group="Preferred Content Format">
+            <label class="opt"><input type="checkbox" name="Preferred Content Format" value="Talking videos"><span>Talking videos</span></label>
+            <label class="opt"><input type="checkbox" name="Preferred Content Format" value="Property tours"><span>Property tours</span></label>
+            <label class="opt"><input type="checkbox" name="Preferred Content Format" value="Educational videos"><span>Educational videos</span></label>
+            <label class="opt"><input type="checkbox" name="Preferred Content Format" value="Written posts"><span>Written posts</span></label>
+            <label class="opt"><input type="checkbox" name="Preferred Content Format" value="Lifestyle content"><span>Lifestyle content</span></label>
+            <label class="opt"><input type="checkbox" name="Preferred Content Format" value="Interviews / Podcasts"><span>Interviews / Podcasts</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="q">Are there any topics you do NOT want to discuss publicly?</label>
+          <textarea name="Topics To Avoid"></textarea>
+        </div>
+      </section>
+
+      <section class="section" data-section="5">
+        <div class="section-head"><span class="section-num">V.</span><h2>Time &amp; Commitment</h2></div>
+
+        <div class="field">
+          <label class="q">How much time can you realistically dedicate to building your personal brand each week?</label>
+          <div class="options" data-group="Weekly Time Commitment">
+            <label class="opt"><input type="radio" name="Weekly Time Commitment" value="Less than 1 hour"><span>Less than 1 hour</span></label>
+            <label class="opt"><input type="radio" name="Weekly Time Commitment" value="1-2 hours"><span>1&ndash;2 hours</span></label>
+            <label class="opt"><input type="radio" name="Weekly Time Commitment" value="3-5 hours"><span>3&ndash;5 hours</span></label>
+            <label class="opt"><input type="radio" name="Weekly Time Commitment" value="5+ hours"><span>5+ hours</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="q">Are you willing to record videos regularly?</label>
+          <div class="options" data-group="Willing To Record Regularly">
+            <label class="opt"><input type="radio" name="Willing To Record Regularly" value="Yes"><span>Yes</span></label>
+            <label class="opt"><input type="radio" name="Willing To Record Regularly" value="Somewhat"><span>Somewhat</span></label>
+            <label class="opt"><input type="radio" name="Willing To Record Regularly" value="No"><span>No</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="q">How often can you create content?</label>
+          <div class="options" data-group="Content Frequency">
+            <label class="opt"><input type="radio" name="Content Frequency" value="Daily"><span>Daily</span></label>
+            <label class="opt"><input type="radio" name="Content Frequency" value="Weekly"><span>Weekly</span></label>
+            <label class="opt"><input type="radio" name="Content Frequency" value="Bi-Weekly"><span>Bi-Weekly</span></label>
+            <label class="opt"><input type="radio" name="Content Frequency" value="Monthly"><span>Monthly</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="q">Can you commit to following a content strategy for at least six months?</label>
+          <div class="options" data-group="Six Month Commitment">
+            <label class="opt"><input type="radio" name="Six Month Commitment" value="Yes"><span>Yes</span></label>
+            <label class="opt"><input type="radio" name="Six Month Commitment" value="Not Sure"><span>Not Sure</span></label>
+            <label class="opt"><input type="radio" name="Six Month Commitment" value="No"><span>No</span></label>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" data-section="6">
+        <div class="section-head"><span class="section-num">VI.</span><h2>Content Resources</h2></div>
+
+        <div class="field">
+          <label class="q">Do you currently have:</label>
+          <div class="hint">Select all that apply</div>
+          <div class="options" data-group="Current Assets">
+            <label class="opt"><input type="checkbox" name="Current Assets" value="Professional headshots"><span>Professional headshots</span></label>
+            <label class="opt"><input type="checkbox" name="Current Assets" value="Property photos"><span>Property photos</span></label>
+            <label class="opt"><input type="checkbox" name="Current Assets" value="Property videos"><span>Property videos</span></label>
+            <label class="opt"><input type="checkbox" name="Current Assets" value="Drone footage"><span>Drone footage</span></label>
+            <label class="opt"><input type="checkbox" name="Current Assets" value="Client testimonials"><span>Client testimonials</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="q">Do you have access to:</label>
+          <div class="hint">Select all that apply</div>
+          <div class="options" data-group="Access To Resources">
+            <label class="opt"><input type="checkbox" name="Access To Resources" value="A videographer"><span>A videographer</span></label>
+            <label class="opt"><input type="checkbox" name="Access To Resources" value="A photographer"><span>A photographer</span></label>
+            <label class="opt"><input type="checkbox" name="Access To Resources" value="A content creator/editor"><span>A content creator/editor</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="q">Do you have a marketing budget for personal branding? If yes, approximately how much per month?</label>
+          <input type="text" name="Marketing Budget" placeholder="e.g. AED 2,000/month, or 'No budget yet'">
+        </div>
+      </section>
+
+      <section class="section" data-section="7">
+        <div class="section-head"><span class="section-num">VII.</span><h2>Current Social Media Presence</h2></div>
+
+        <div class="field">
+          <label class="q">Instagram</label>
+          <input type="url" name="Instagram URL" placeholder="https://instagram.com/...">
+        </div>
+        <div class="field">
+          <label class="q">LinkedIn</label>
+          <input type="url" name="LinkedIn URL" placeholder="https://linkedin.com/in/...">
+        </div>
+        <div class="field">
+          <label class="q">Facebook</label>
+          <input type="url" name="Facebook URL" placeholder="https://facebook.com/...">
+        </div>
+        <div class="field">
+          <label class="q">TikTok</label>
+          <input type="url" name="TikTok URL" placeholder="https://tiktok.com/@...">
+        </div>
+        <div class="field">
+          <label class="q">YouTube</label>
+          <input type="url" name="YouTube URL" placeholder="https://youtube.com/@...">
+        </div>
+        <div class="field">
+          <label class="q">Have you actively posted content before?</label>
+          <div class="options" data-group="Posted Before">
+            <label class="opt"><input type="radio" name="Posted Before" value="Yes"><span>Yes</span></label>
+            <label class="opt"><input type="radio" name="Posted Before" value="Occasionally"><span>Occasionally</span></label>
+            <label class="opt"><input type="radio" name="Posted Before" value="No"><span>No</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="q">What type of content has performed best for you so far?</label>
+          <textarea name="Best Performing Content"></textarea>
+        </div>
+      </section>
+
+      <section class="section" data-section="8">
+        <div class="section-head"><span class="section-num">VIII.</span><h2>Long-Term Vision</h2></div>
+
+        <div class="field">
+          <label class="q">Where do you see your real estate career in the next 3&ndash;5 years?</label>
+          <textarea name="3-5 Year Vision"></textarea>
+        </div>
+        <div class="field">
+          <label class="q">What do you want people to think of when they hear your name?</label>
+          <textarea name="Top Of Mind Association"></textarea>
+        </div>
+        <div class="field">
+          <label class="q">If you became known for one thing in real estate, what would you want it to be?</label>
+          <textarea name="Known For One Thing"></textarea>
+        </div>
+        <div class="field">
+          <label class="q">Is there anything else you think would be helpful for me to know about you, your business, or your goals?</label>
+          <textarea name="Anything Else"></textarea>
+        </div>
+      </section>
+
+      <div class="nav">
+        <button type="button" class="btn ghost" id="backBtn">&larr; Back</button>
+        <span class="nav-meta" id="navMeta">PART 01 OF 08</span>
+        <button type="button" class="btn primary" id="nextBtn">Continue &rarr;</button>
+      </div>
+    </form>
+
+    <div class="endscreen" id="endscreen">
+      <h2 id="endTitle">Sending your dossier...</h2>
+      <p id="endText">Hold on a moment while this is recorded.</p>
+      <div class="status-line" id="statusLine"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  // ====== CONFIGURE THIS ======
+  var SCRIPT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+  // =============================
+
+  var sections = Array.prototype.slice.call(document.querySelectorAll('.section'));
+  var total = sections.length;
+  var current = 0;
+
+  var railSteps = document.getElementById('railSteps');
+  sections.forEach(function(s, i){
+    var step = document.createElement('div');
+    step.className = 'rail-step';
+    step.setAttribute('data-num', String(i+1).padStart(2,'0'));
+    railSteps.appendChild(step);
+  });
+  var railEls = Array.prototype.slice.call(railSteps.children);
+
+  var nextBtn = document.getElementById('nextBtn');
+  var backBtn = document.getElementById('backBtn');
+  var navMeta = document.getElementById('navMeta');
+  var mobileLabel = document.getElementById('mobileLabel');
+  var mobileFill = document.getElementById('mobileFill');
+  var masthead = document.getElementById('masthead');
+  var form = document.getElementById('brandForm');
+  var endscreen = document.getElementById('endscreen');
+
+  function render(){
+    sections.forEach(function(s,i){ s.classList.toggle('active', i===current); });
+    railEls.forEach(function(el,i){
+      el.classList.toggle('done', i < current);
+      el.classList.toggle('active', i === current);
+    });
+    navMeta.textContent = 'PART ' + String(current+1).padStart(2,'0') + ' OF ' + String(total).padStart(2,'0');
+    mobileLabel.textContent = navMeta.textContent;
+    mobileFill.style.width = (((current+1)/total)*100) + '%';
+    backBtn.style.visibility = current === 0 ? 'hidden' : 'visible';
+    nextBtn.textContent = current === total-1 ? 'Submit dossier →' : 'Continue →';
+    window.scrollTo({top: masthead.offsetTop - 20, behavior:'smooth'});
+  }
+
+  function validateCurrent(){
+    var active = sections[current];
+    var required = active.querySelectorAll('[required]');
+    for (var i=0;i<required.length;i++){
+      if (!required[i].value.trim()){
+        required[i].focus();
+        required[i].style.borderBottomColor = '#A23B2E';
+        return false;
+      }
+    }
+    return true;
+  }
+
+  nextBtn.addEventListener('click', function(){
+    if (!validateCurrent()) return;
+    if (current < total-1){
+      current++;
+      render();
+    } else {
+      submitForm();
+    }
+  });
+
+  backBtn.addEventListener('click', function(){
+    if (current > 0){ current--; render(); }
+  });
+
+  document.querySelectorAll('[data-other-toggle]').forEach(function(cb){
+    cb.addEventListener('change', function(){
+      var target = document.getElementById(cb.getAttribute('data-other-toggle'));
+      target.style.display = cb.checked ? 'block' : 'none';
+    });
+  });
+
+  form.addEventListener('input', function(e){
+    if (e.target.style) e.target.style.borderBottomColor = '';
+  });
+
+  function collectData(){
+    var data = {};
+    var fd = new FormData(form);
+    var multiFields = {};
+    fd.forEach(function(value, key){
+      var isCheckboxGroup = form.querySelectorAll('input[type="checkbox"][name="'+CSS.escape(key)+'"]').length > 0;
+      if (isCheckboxGroup){
+        if (!multiFields[key]) multiFields[key] = [];
+        multiFields[key].push(value);
+      } else {
+        data[key] = value;
+      }
+    });
+    Object.keys(multiFields).forEach(function(k){
+      data[k] = multiFields[k].join(', ');
+    });
+    data['Submitted At'] = new Date().toISOString();
+    return data;
+  }
+
+  function submitForm(){
+    form.style.display = 'none';
+    document.querySelector('.nav').style.display = 'none';
+    endscreen.classList.add('active');
+
+    var statusLine = document.getElementById('statusLine');
+    var endTitle = document.getElementById('endTitle');
+    var endText = document.getElementById('endText');
+    statusLine.innerHTML = '<span class="submit-spinner"></span>Recording your responses…';
+
+    var data = collectData();
+
+    if (SCRIPT_URL.indexOf('PASTE_YOUR') === 0){
+      setTimeout(function(){
+        endTitle.textContent = 'Almost there.';
+        endText.textContent = 'This form is not yet connected to a Google Sheet. Paste your Apps Script Web App URL into the SCRIPT_URL constant near the bottom of the index.html file.';
+        statusLine.textContent = '';
+      }, 600);
+      return;
+    }
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify(data)
+    }).then(function(){
+      endTitle.textContent = 'Thank you, ' + (data['Full Name'] ? data['Full Name'].split(' ')[0] : 'there') + '.';
+      endText.textContent = "Your dossier has been recorded. I'll use this to put together a personal branding strategy that actually sounds like you.";
+      statusLine.textContent = '';
+    }).catch(function(err){
+      endTitle.textContent = 'Something interrupted the send.';
+      endText.textContent = 'Your responses were not recorded. Please check your connection and try again.';
+      statusLine.textContent = String(err);
+      statusLine.classList.add('error');
+    });
+  }
+
+  render();
+})();
+</script>
+
+</body>
+</html>
